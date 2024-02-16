@@ -102,30 +102,54 @@ class TeleBot
 
     /**
      * @param string $command
-     * @param callable $closure
+     * @param array|string|callable $action
      * @param bool $thenDie Do you want to terminate the script after executing the command?
+     * @param array $actionArgs Additional arguments you want to be pass to the action.
+     * @return void
      */
-    public function listen($command, $closure, $thenDie = true)
+    public function listen($command, $action, $thenDie = true, $actionArgs = [])
     {
         $text = $this->hasCallbackQuery() ?
             $this->update->callback_query->data :
             $this->update->message->text;
-
-        if (is_null($text)) {
+        
+        if (is_null($action) || is_null($text)) {
             return;
         }
 
-        if ($text == $command) {
-            call_user_func($closure);
-            return $this->dieIf($thenDie);
+        if(!$this->matchToCommand($command, $text, $params)){
+            return;
         }
         
-        if ($this->matchToCommand($text, $command)) {
-            preg_match($this->createRegexPattern($command), $text, $params);
-            $params = array_slice($params, 1);
-            call_user_func_array($closure, $params);
-            return $this->dieIf($thenDie);
+        $action = $this->parseAction($action);
+        
+        $actionArgs = array_merge($params, $actionArgs);
+
+        call_user_func_array($action, $actionArgs);
+        
+        $this->dieIf($thenDie);
+    }
+    
+    /**
+     * Parse the action into a closure or an standard array which is callable by `call_user_func_array`.
+     * 
+     * @param array|string|callable $action
+     * 
+     * @return callable
+     */
+    
+     private function parseAction($action)
+    {
+        if (is_string($action)){
+            $params = explode($action, '@');
+            $action = [$params[0], $params[1] ?? $this->handlerActionMethod];
         }
+        
+        if (is_array($action) && is_string($action[0])){
+            $action[0] = new $action[0]($this);
+        }
+        
+        return $action;
     }
 
     /**

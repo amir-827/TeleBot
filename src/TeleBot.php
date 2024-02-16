@@ -157,9 +157,10 @@ class TeleBot
      * 
      * @return bool
      */
-    private function matchToCommand($command, $text, &$matches = [])
+    private function matchToCommand($command, $text, &$matches = null)
     {
         if ($text === $command){
+            $matches = [];
             return true;
         }
         

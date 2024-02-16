@@ -157,8 +157,12 @@ class TeleBot
      * 
      * @return bool
      */
-    private function matchToCommand($command, $text, &$matches = null)
+    private function matchToCommand($command, $text, &$matches = [])
     {
+        if ($text === $command){
+            return true;
+        }
+        
         $pattern = $this->createRegexPattern($command);
 
         $result = preg_match($pattern, $text, $matches) === 1;

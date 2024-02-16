@@ -151,13 +151,23 @@ class TeleBot
     /**
      * Check if `$text` matches the `$command` pattern.
      * 
+     * @param string $command The command to search for, as a string.
+     * @param string $text The input string.
+     * @param array|null $matches If `matches` is provided, then it is filled with the results of search. $matches[0] will have the text that matched the first captured parenthesized subpattern, and so on.
+     * 
      * @return bool
      */
-    private function isMatch(string $text, string $command): bool
+    private function isMatch($command, $text, &$matches = null)
     {
         $pattern = $this->createRegexPattern($command);
 
-        return preg_match($pattern, $text) === 1;
+        $result = preg_match($pattern, $text, $matches) === 1;
+        
+        if ($result){
+            $matches = array_slice($matches, 1);
+        }
+
+        return $result;
     }
 
     /**

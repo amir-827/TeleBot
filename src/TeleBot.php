@@ -120,7 +120,7 @@ class TeleBot
             return $this->dieIf($thenDie);
         }
         
-        if ($this->isMatch($text, $command)) {
+        if ($this->matchToCommand($text, $command)) {
             preg_match($this->createRegexPattern($command), $text, $params);
             $params = array_slice($params, 1);
             call_user_func_array($closure, $params);
@@ -157,7 +157,7 @@ class TeleBot
      * 
      * @return bool
      */
-    private function isMatch($command, $text, &$matches = null)
+    private function matchToCommand($command, $text, &$matches = null)
     {
         $pattern = $this->createRegexPattern($command);
 

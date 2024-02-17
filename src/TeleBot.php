@@ -137,7 +137,6 @@ class TeleBot
      * 
      * @return callable
      */
-    
      private function parseAction($action)
     {
         if (is_string($action)){
